@@ -21,7 +21,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-package-manager.git",
-                 revision: "swift-5.10-RELEASE"),
+                 revision: "27996b8ae75df9f35d45c6cc1929a7456c2dcb60"),
         .package(url: "https://github.com/apple/swift-log.git",
                  .upToNextMinor(from: "1.4.2")),
         .package(url: "https://github.com/apple/swift-collections",
