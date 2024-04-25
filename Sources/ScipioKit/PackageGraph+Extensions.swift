@@ -1,7 +1,7 @@
 import Foundation
 import PackageGraph
 
-extension ResolvedTarget {
+extension ResolvedModule {
     var xcFrameworkName: String {
         "\(c99name.packageNamed()).xcframework"
     }

@@ -12,7 +12,7 @@ struct XCBuildExecutor {
         configuration: BuildConfiguration,
         derivedDataPath: AbsolutePath,
         buildParametersPath: AbsolutePath,
-        target: ResolvedTarget
+        target: ResolvedModule
     ) async throws {
         let executor = _Executor(args: [
             xcbuildPath.pathString,

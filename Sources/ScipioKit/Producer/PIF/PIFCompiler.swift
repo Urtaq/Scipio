@@ -115,7 +115,7 @@ struct PIFCompiler: Compiler {
             dataPath: descriptionPackage.buildDirectory.spmAbsolutePath,
             configuration: buildOptions.buildConfiguration.spmConfiguration,
             toolchain: toolchain,
-            targetTriple: toolchain.targetTriple,
+            triple: toolchain.targetTriple,
             flags: .init(),
             isXcodeBuildSystemEnabled: true,
             driverParameters: BuildParameters.Driver(enableParseableModuleInterfaces: buildOptions.enableLibraryEvolution)

@@ -1,4 +1,4 @@
-// swift-tools-version: 5.6
+// swift-tools-version: 5.10
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -7,7 +7,8 @@ import Foundation
 let package = Package(
     name: "Scipio",
     platforms: [
-        .macOS(.v12),
+        .macOS(.v13),
+        .iOS(.v16),
     ],
     products: [
         .executable(name: "scipio",

@@ -50,7 +50,7 @@ struct DescriptionPackage {
         workspaceDirectory.appending(component: "DerivedData")
     }
 
-    func generatedModuleMapPath(of target: ResolvedTarget, sdk: SDK) throws -> ScipioAbsolutePath {
+    func generatedModuleMapPath(of target: ResolvedModule, sdk: SDK) throws -> ScipioAbsolutePath {
         let relativePath = try TSCBasic.RelativePath(validating: "ModuleMapsForFramework/\(sdk.settingValue)")
         return workspaceDirectory
             .appending(relativePath)
@@ -134,6 +134,7 @@ struct DescriptionPackage {
             // This option is same with resolver option `--disable-automatic-resolution`
             // Never update Package.resolved of the package
             forceResolvedVersions: onlyUseVersionsFromResolvedFile,
+            availableLibraries: [], 
             observabilityScope: scope
         )
         self.manifest = try tsc_await {
@@ -153,7 +154,7 @@ extension DescriptionPackage {
         var products = try targetsToBuild.flatMap(resolveBuildProduct(from:))
 
         let productMap: [String: BuildProduct] = Dictionary(products.map { ($0.target.name, $0) }) { $1 }
-        func resolvedTargetToBuildProduct(_ target: ResolvedTarget) -> BuildProduct {
+        func resolvedTargetToBuildProduct(_ target: ResolvedModule) -> BuildProduct {
             guard let product = productMap[target.name] else {
                 preconditionFailure("The dependency target (\(target.name)) was not found in the build target list")
             }
@@ -181,18 +182,18 @@ extension DescriptionPackage {
         return products.reversed()
     }
 
-    private func targetsToBuild() throws -> Set<ResolvedTarget> {
+    private func targetsToBuild() throws -> [ResolvedModule] {
         switch mode {
         case .createPackage:
             // In create mode, all products should be built
             // In future update, users will be enable to specify products want to build
             let rootPackage = try fetchRootPackage()
             let productsToBuild = rootPackage.products
-            return Set(productsToBuild.flatMap(\.targets))
+            return productsToBuild.flatMap(\.targets)
         case .prepareDependencies:
             // In prepare mode, all targets should be built
             // In future update, users will be enable to specify targets want to build
-            return Set(try fetchRootPackage().targets)
+            return try fetchRootPackage().targets
         }
     }
 
@@ -203,7 +204,7 @@ extension DescriptionPackage {
         return rootPackage
     }
 
-    private func resolveBuildProduct(from rootTarget: ResolvedTarget) throws -> Set<BuildProduct> {
+    private func resolveBuildProduct(from rootTarget: ResolvedModule) throws -> Set<BuildProduct> {
         let dependencyProducts = Set(try rootTarget.recursiveTargetDependencies().flatMap(buildProducts(from:)))
 
         switch mode {
@@ -217,7 +218,7 @@ extension DescriptionPackage {
         }
     }
 
-    private func buildProducts(from target: ResolvedTarget) throws -> Set<BuildProduct> {
+    private func buildProducts(from target: ResolvedModule) throws -> Set<BuildProduct> {
         guard let package = graph.package(for: target) else {
             return []
         }
@@ -230,13 +231,13 @@ extension DescriptionPackage {
 
 struct BuildProduct: Hashable {
     var package: ResolvedPackage
-    var target: ResolvedTarget
+    var target: ResolvedModule
 
     var frameworkName: String {
         "\(target.name.packageNamed()).xcframework"
     }
 
     var binaryTarget: BinaryTarget? {
-        target.underlyingTarget as? BinaryTarget
+        target.underlying as? BinaryTarget
     }
 }
